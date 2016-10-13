@@ -6,6 +6,7 @@ import java.lang.String
 import scala.{ App, Char, Int, List }
 import scala.Predef.{ println, augmentString }
 import scalaz._
+import scalaz.IList._
 import Scalaz._
 import parser.spire._
 import spire.math.UByte
@@ -31,7 +32,7 @@ object Example extends App {
     } yield IP(a, b, c, d)
 
   // Try it!
-  println(ip parseOnly "foo.bar") // Fail(foo.bar,List(ubyte, int, long),Failure reading:digit)
+  println(ip parseOnly "foo.bar") // Fail(foo.bar,IList(ubyte, int, long),Failure reading:digit)
   println(ip parseOnly "128.42.42.1") // Done(,IP(128,42,42,1))
   println(ip.parseOnly("128.42.42.1").option) // Some(IP(128,42,42,1)
 
@@ -56,8 +57,8 @@ object Example extends App {
   val ip3 = ip1 namedOpaque "ip-address" // difference is illustrated below
 
   // Try it!
-  println(ip2 parseOnly "foo.bar") // Fail(foo.bar,List(ip-address, ubyte, int, long),Failure reading:digit)
-  println(ip3 parseOnly "foo.bar") // Fail(foo.bar,List(),Failure reading:ip-address)
+  println(ip2 parseOnly "foo.bar") // Fail(foo.bar,IList(ip-address, ubyte, int, long),Failure reading:digit)
+  println(ip3 parseOnly "foo.bar") // Fail(foo.bar,IList(),Failure reading:ip-address)
 
   // Since nothing that occurs on the right-hand side of our <- appears on the left-hand side, we
   // don't actually need a monad; we can use applicative syntax here.
@@ -97,7 +98,7 @@ object Example extends App {
   case class LogEntry(entryTime: DateTime, entryIP: IP, entryProduct: Product)
 
   // The log is a list of them
-  type Log = List[LogEntry]
+  type Log = IList[LogEntry]
 
   // Fixed-width ints, which we need below.
   val int1: Parser[Int] = digit.map(_ - '0')
@@ -126,7 +127,7 @@ object Example extends App {
     sepBy(logEntry, char('\n'))
 
   // Try it!
-  (log parseOnly logData).option.foreach(_.foreach(println))
+  (log parseOnly logData).option.foreach(_.map(println(_)))
   // LogEntry(DateTime(Date(2013,6,29),Time(11,16,23)),IP(124,67,34,60),Keyboard)
   // LogEntry(DateTime(Date(2013,6,29),Time(11,32,12)),IP(212,141,23,67),Mouse)
   // LogEntry(DateTime(Date(2013,6,29),Time(11,33,8)),IP(212,141,23,67),Monitor)

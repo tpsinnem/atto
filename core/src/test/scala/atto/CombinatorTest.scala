@@ -3,6 +3,7 @@ import Atto._
 
 import org.scalacheck._
 import scalaz._
+import IList._
 import scalaz.syntax.functor._
 import scalaz.syntax.std.list._
 import scalaz.std.option._
@@ -144,14 +145,14 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("cons") = forAll { (c: Char, s: String) =>
-    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(Nil)))
+    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(empty)))
     p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList: _*))
   }
 
   // phrase
 
   property("many") = forAll { (s: String) =>
-    many(anyChar).parseOnly(s).option == Some(s.toList)
+    many(anyChar).parseOnly(s).option == Some(IList.fromList(s.toList))
   }
 
   property("many1") = forAll { (s: String) =>
@@ -162,13 +163,13 @@ object CombinatorTest extends Properties("Combinator") {
   property("manyN") = forAll { (s: String, n0: Int) =>
     val n = if (s.isEmpty) 0 else (n0.abs % s.length)
     manyN(n, anyChar).parseOnly(s).option ==
-      Some(s.take(n).toList)
+      Some(IList.fromList(s.take(n).toList))
   }
 
   property("manyUntil") = forAll { (s: String) =>
     (s.nonEmpty && s.indexOf("x") == -1) ==> {
       val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done
-      r == ParseResult.Done("yz", List(s, s, s))
+      r == ParseResult.Done("yz", IList(s, s, s))
     }
   }
 
@@ -191,8 +192,9 @@ object CombinatorTest extends Properties("Combinator") {
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> {
       val p = sepBy(int, string(sep))
+      val ins = IList.fromList(ns)
       p.parseOnly(ns.mkString(sep)) match {
-        case ParseResult.Done("", `ns`) => true
+        case ParseResult.Done("", `ins`) => true
         case _ => false
       }
     }
@@ -203,7 +205,7 @@ object CombinatorTest extends Properties("Combinator") {
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> {
       val p = sepBy1(int, string(sep))
-      p.parseOnly(ns.list.mkString(sep)) match {
+      p.parseOnly(ns.list.toList.mkString(sep)) match {
         case ParseResult.Done("", `ns`) => true
         case _ => false
       }
@@ -240,7 +242,7 @@ object CombinatorTest extends Properties("Combinator") {
   property("count") = forAll { (c: Char, n0: Int) =>
     val n = (n0.abs % 10) + 1
     val s = c.toString * 20
-    count(n, char(c)).parseOnly(s) == ParseResult.Done(s drop n, List.fill(n)(c))
+    count(n, char(c)).parseOnly(s) == ParseResult.Done(s drop n, IList.fill(n)(c))
   }
 
 }

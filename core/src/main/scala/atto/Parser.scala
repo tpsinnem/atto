@@ -57,7 +57,7 @@ object Parser extends ParserInstances with ParserFunctions {
     sealed abstract class Result[T] {
       def translate: ParseResult[T]
     }
-    case class Fail[T](input: State, stack: List[String], message: String) extends Result[T] {
+    case class Fail[T](input: State, stack: IList[String], message: String) extends Result[T] {
       def translate = ParseResult.Fail(input.input, stack, message)
       def push(s: String) = Fail(input, stack = s :: stack, message)
     }
@@ -72,7 +72,7 @@ object Parser extends ParserInstances with ParserFunctions {
   import Internal._
 
   type TResult[R] = Trampoline[Result[R]]
-  type Failure[R] = (State,List[String],String) => TResult[R]
+  type Failure[R] = (State,IList[String],String) => TResult[R]
   type Success[-A, R] = (State, A) => TResult[R]
 
 }
@@ -85,7 +85,7 @@ trait ParserFunctions {
    * Run a parser
    */
   def parse[A](m: Parser[A], b: String): ParseResult[A] = {
-    def kf(a:State, b: List[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
+    def kf(a:State, b: IList[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = done[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))
     m(State(b, false), kf, ks).run.translate
   }
@@ -97,7 +97,7 @@ trait ParserFunctions {
    * Instead, any residual input will be discarded.
    */
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = {
-    def kf(a:State, b: List[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
+    def kf(a:State, b: IList[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = done[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))
     m(State(b, true), kf, ks).run.translate
   }

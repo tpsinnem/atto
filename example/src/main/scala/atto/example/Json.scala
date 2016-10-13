@@ -3,6 +3,7 @@ package atto.example
 import java.lang.String
 import scala.{ Boolean, Char, Double, List }
 
+import scalaz._
 import scalaz.syntax.functor._
 import scalaz.std.list._
 
@@ -17,11 +18,11 @@ object JsonExample extends Whitespace {
   case class JBoolean(value: Boolean) extends JValue 
   case class JString(value: String) extends JValue 
   case class JNumber(value: Double) extends JValue 
-  case class JArray(values: List[JValue]) extends JValue 
-  case class JObject(values: List[(String, JValue)]) extends JValue 
+  case class JArray(values: IList[JValue]) extends JValue 
+  case class JObject(values: IList[(String, JValue)]) extends JValue 
 
   // Bracketed, comma-separated sequence, internal whitespace allowed 
-  def seq[A](open: Char, p: Parser[A], close: Char): Parser[List[A]] =
+  def seq[A](open: Char, p: Parser[A], close: Char): Parser[IList[A]] =
     char(open).t ~> sepByT(p, char(',')) <~ char(close)
 
   // Colon-separated pair, internal whitespace allowed
@@ -52,7 +53,7 @@ trait Whitespace {
   }
 
   // Delimited list
-  def sepByT[A](a: Parser[A], b: Parser[_]): Parser[List[A]] = 
+  def sepByT[A](a: Parser[A], b: Parser[_]): Parser[IList[A]] = 
     sepBy(a.t, b.t)
 
   // Delimited pair, internal whitespace allowed

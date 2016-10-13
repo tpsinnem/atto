@@ -90,7 +90,7 @@ lazy val core = project.in(file("core"))
   .settings(name := "atto-core")
   .settings(
   	libraryDependencies ++= Seq(
-		  "org.scalaz"     %% "scalaz-core" % "7.1.0",
+		  "org.scalaz"     %% "scalaz-core" % "7.2.6",
 		  "org.scalacheck" %% "scalacheck"  % "1.11.3" % "test"
 		)
 	)
@@ -105,7 +105,7 @@ lazy val spire = project.in(file("spire")).dependsOn(core)
 lazy val stream = project.in(file("stream")).dependsOn(core)
   .settings(tutSettings ++ publishSettings)
 	.settings(name := "atto-stream")
-	.settings(libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.7.2a")
+	.settings(libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.8")
 	.settings(initialCommands :=
 	  """import scalaz._
 	     import Scalaz._

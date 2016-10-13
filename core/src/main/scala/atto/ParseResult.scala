@@ -4,6 +4,7 @@ import java.lang.String
 import scala.{ Option, Some, None, Nothing, List }
 import scalaz._
 import Scalaz._
+import scalaz.IList._
 
 sealed abstract class ParseResult[+A] {
   def map[B](f: A => B): ParseResult[B]
@@ -15,7 +16,7 @@ sealed abstract class ParseResult[+A] {
 
 object ParseResult extends ParseResultInstances {
 
-  case class Fail(input: String, stack: List[String], message: String) extends ParseResult[Nothing] {
+  case class Fail(input: String, stack: IList[String], message: String) extends ParseResult[Nothing] {
     def map[B](f: Nothing => B) = Fail(input, stack, message)
     def feed(s: String) = this
     override def done = this

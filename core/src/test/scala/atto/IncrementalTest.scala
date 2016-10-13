@@ -12,11 +12,12 @@ object IncrementalTest extends Properties("Incremental") {
     val sep = s + s + s + c
     !sep.exists(_.isDigit) ==> { 
       val ns = n :: ns0 ++ ns0 ++ ns0 
+      val ins = IList.fromList(ns)
       val p = sepBy(int, string(sep))
       val s = ns.mkString(sep)
       val c = s.grouped(1 max (n % s.length).abs).toList
       (p.parse("") /: c)(_ feed _).done match {
-        case ParseResult.Done("", `ns`) => true
+        case ParseResult.Done("", `ins`) => true
         case _ => false
       }
     }

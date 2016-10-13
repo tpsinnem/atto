@@ -4,6 +4,7 @@ import Atto._
 import scala.util.Random
 
 import org.scalacheck._
+import scalaz.IList
 import scalaz.\/._
 
 object CharacterTest extends Properties("Character") {
@@ -55,7 +56,7 @@ object CharacterTest extends Properties("Character") {
 
   property("optElem + many") = forAll { (s: String, c: Char) =>
     val p = many(optElem(ch => Some(ch).filter(_ < c)))
-    p.parseOnly(s).option == Some(s.toList.takeWhile(_ < c))
+    p.parseOnly(s).option == Some(IList.fromList(s.toList).takeWhile(_ < c))
   }
 
 }

@@ -33,12 +33,12 @@ trait NTriples {
   case class DatatypeString(string: String, ref: UriRef) extends Literal
 
   // triples filters out the comments
-  lazy val triples: Parser[List[Triple]] =
-    ntripleDoc.map(_.map(_.toOption).flatten)
+  lazy val triples: Parser[IList[Triple]] =
+    ntripleDoc.map(_.map({e => IList.fromList(e.toList)}).flatten)
 
   // ntripleDoc ::= line* 
-  lazy val ntripleDoc: Parser[List[Line]] =
-    many(line).map(_.flatten)
+  lazy val ntripleDoc: Parser[IList[Line]] =
+    many(line).map(_.map({o => IList.fromList(o.toList)}).flatten)
 
   // line ::= ws* ( comment | triple )? eoln  
   lazy val line: Parser[Option[Line]] =
